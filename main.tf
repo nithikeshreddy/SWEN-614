@@ -15,7 +15,7 @@ data "aws_vpc" "default" {
 
 # Security group to allow HTTP traffic
 resource "aws_security_group" "http_sg" {
-  name        = "allow_http_ssh"
+  name        = "nb_allow_http_ssh"
   description = "Allow HTTP and SSH traffic"
   vpc_id      = data.aws_vpc.default.id  # Use the dynamically fetched VPC ID
 
