@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "ssr-terraform-wp-bucket"
+    bucket = "nb-aws-terraform-bucket"
     key    = "backend.tfstate"
     region = "us-east-1"
   }
