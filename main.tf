@@ -1,64 +1,21 @@
-# Provider Configuration
+# Configure the AWS Provider
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-1"  # Set AWS region to US East 1 (N. Virginia)
 }
 
-# VPC Module
-module "vpc" {
-  source = "./modules/vpc"
+# Local variables block for configuration values
+locals {
+    aws_key = "<YOUR-KEY-NAME>"   # SSH key pair name for EC2 instance access
 }
 
-# Subnets Module
-module "subnets" {
-  source = "./modules/subnets"
-  vpc_id = module.vpc.vpc_id
-}
-
-# Internet Gateway Module
-module "internet_gateway" {
-  source = "./modules/internet_gateway"
-  vpc_id = module.vpc.vpc_id
-}
-
-# Route Table Module
-module "route_table" {
-  source = "./modules/route_table"
-  vpc_id = module.vpc.vpc_id
-  igw_id = module.internet_gateway.igw_id
-  public_subnet_id = module.subnets.public_subnet_id
-}
-
-# Security Groups Module
-module "security_groups" {
-  source = "./modules/security_groups"
-  vpc_id = module.vpc.vpc_id
-}
-
-# EC2 Instance Module
-module "ec2_instance" {
-  source = "./modules/ec2_instance"
-  subnet_id = module.subnets.public_subnet_id
-  security_group_id = module.security_groups.ec2_sg_id
-  key_name = var.key_name
-  db_username = var.db_username
-  db_password = var.db_password
-  rds_endpoint = module.rds_instance.rds_endpoint
-}
-
-# RDS Instance Module
-module "rds_instance" {
-  source = "./modules/rds_instance"
-  subnet_ids = [module.subnets.private_subnet_id, module.subnets.public_subnet_id]
-  security_group_id = module.security_groups.rds_sg_id
-  db_username = var.db_username
-  db_password = var.db_password
-}
-
-# Outputs
-output "ec2_public_ip" {
-  value = module.ec2_instance.ec2_public_ip
-}
-
-output "rds_endpoint" {
-  value = module.rds_instance.rds_endpoint
+# EC2 instance resource definition
+resource "aws_instance" "my_server" {
+   ami           = data.aws_ami.amazonlinux.id  # Use the AMI ID from the data source
+   instance_type = var.instance_type            # Use the instance type from variables
+   key_name      = "${local.aws_key}"          # Specify the SSH key pair name
+  
+   # Add tags to the EC2 instance for identification
+   tags = {
+     Name = "my ec2"
+   }                  
 }
